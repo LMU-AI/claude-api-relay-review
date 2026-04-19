@@ -45,7 +45,7 @@
 
 ## 逐个评测
 
-### 1. [灵眸AI](https://clawapi.fulitimes.com/home) ⭐⭐⭐⭐⭐
+### 1. [灵眸AI](https://clawapi.fulitimes.com/register?ref=vJaWWr4T) ⭐⭐⭐⭐⭐
 
 **我目前主用的平台，Claude Code重度场景首选。**
 
