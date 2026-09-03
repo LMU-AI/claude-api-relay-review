@@ -14,6 +14,8 @@
 
 ## 先说结论（不想看细节的直接看这里）
 
+> 排序方式：按加权均价从低到高排，星级在此基础上做了定性调整——逆向接口/无国内直连/网络门槛高等风险因素会被降级，不是单纯"价格低=星多"。具体调整依据见下方逐个评测。
+>
 > 以下价格基于 **Claude Opus 4.7**，加权均价按输入30% / 输出70%计算，单位¥/百万token
 
 | 平台            | 汇率¥/$ | 输入¥/M | 输出¥/M | Cache读¥/M | 写入5m¥/M | 写入1h¥/M | 加权均价¥/M | 支持Claude Code          |
@@ -45,7 +47,7 @@
 
 ## 逐个评测
 
-### 1. [灵眸AI](https://clawapi.fulitimes.com/register?ref=vJaWWr4T) ⭐⭐⭐⭐⭐
+### 1. [灵眸AI](https://api.lmuai.ai/g/bF5zuCmw) ⭐⭐⭐⭐⭐
 
 **我目前主用的平台，Claude Code重度场景首选。**
 
@@ -313,7 +315,7 @@ Claude Code在工作时会读取你本地大量文件内容，通过中转站传
 ```json
 {
   "env": {
-    "ANTHROPIC_BASE_URL": "https://clawapi.fulitimes.com/",
+    "ANTHROPIC_BASE_URL": "https://api.lmuai.ai/",
     "ANTHROPIC_AUTH_TOKEN": "sk-08b160d34*****************2c1",
     "CLAUDE_CODE_ATTRIBUTION_HEADER": "0"
   },
@@ -326,7 +328,7 @@ Claude Code在工作时会读取你本地大量文件内容，通过中转站传
 ```json
 {
   "env": {
-    "ANTHROPIC_BASE_URL": "https://clawapi.fulitimes.com/",
+    "ANTHROPIC_BASE_URL": "https://api.lmuai.ai/",
     "ANTHROPIC_AUTH_TOKEN": "sk-08b160d34*****************2c1",
     "CLAUDE_CODE_ATTRIBUTION_HEADER": "0"
   },
@@ -351,7 +353,7 @@ Claude Code在工作时会读取你本地大量文件内容，通过中转站传
 
 ```bash
 export ANTHROPIC_MODEL=glm-5
-export ANTHROPIC_BASE_URL="https://clawapi.fulitimes.com/"
+export ANTHROPIC_BASE_URL="https://api.lmuai.ai/"
 export ANTHROPIC_AUTH_TOKEN="sk-08b160d34*****************2c1"
 ```
 
