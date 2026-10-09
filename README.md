@@ -1,18 +1,16 @@
-# 我对比了8个Claude API中转站，踩了不少坑，总结给你
+# Claude API 国内接入：8个中转站横评对比，踩过的坑都在这
 
-> 本人：个人开发者，Claude Code重度使用者，Token重度成瘾患者，下面测评耗时1周
+国内怎么接入 Claude API？Anthropic 官方 API 不支持中国大陆注册和付款，OpenRouter 在国内 IP 下用不了 Claude 系列，常见做法是接一个国内能直连的 API 中转站。本仓库实测对比了 8 个 Claude API 中转站的价格、内部汇率、Prompt Cache 和 Claude Code 兼容性，附逆向接口和模型掺假的识别方法，以及 Claude Code、Python、curl 的接入配置。
 
-> **2026-10-09 更新**：灵眸AI 的计价方式已经调整，文中 4 月的「内部汇率 ¥2.4/$」不再适用，现行价格见下方「[2026-10 灵眸AI 现行价格](#2026-10-灵眸ai-现行价格)」。其余 7 家平台的数据仍是 2026 年 4 月实测，**没有重测**，请以各家官网为准。
+> **利益相关声明**：本仓库由灵眸AI 维护。灵眸AI 就是下面对比的 8 家之一，文中灵眸AI 的链接带我们的邀请码（被邀请人充值后我们获得账面佣金）。我们把自己排在第一，你有理由怀疑，所以价格口径、计算方法和验证方法都写在下面，可以拿去复核任何一家，包括我们自己。
 >
-> **利益相关声明**：灵眸AI 是我自己在用的服务，文中灵眸AI 的链接是我的邀请链接（被邀请人充值后我获得账面佣金）。下面的价格口径和验证方法都可以自行复核，欢迎拿去验任何一家，包括灵眸AI 自己。
+> **数据时间**：灵眸AI 的价格 2026-10-09 更新，4 月的「内部汇率 ¥2.4/$」已不再适用，现行价格见「[2026-10 灵眸AI 现行价格](#2026-10-灵眸ai-现行价格)」。神马中转API 已于 2026 年 7 月停服。其余 6 家的数据仍是 2026 年 4 月实测，**没有重测**，请以各家官网为准。
 
 ---
 
-长期重度使用Claude API，期间换过好几个中转站，有被坑过的，也有用得很顺的。
+正文里的「我」是做这次测评的灵眸AI 成员，Claude Code 重度用户。4 月测评耗时 1 周，测的是 Claude Code 重度使用场景。
 
-抽空系统整理了一下，把市面上主流的8个平台都拉出来横向对比了一遍。写这篇文章的原因很简单：网上的评测要么是广告软文，要么信息严重过时，很少有人老老实实把价格、踩坑、模型真实性一起说清楚的。
-
-这篇尽量客观，把我测出来的数据直接给你，自己判断。
+写这篇的原因：网上的评测要么信息严重过时，要么不说清价格口径，很少有人把价格、踩坑、模型真实性一起说清楚。我们自己就是其中一家，谈不上中立，能做到的是把口径和数据摊开：每家都写缺点，数字都能复现，自己判断。
 
 ---
 
@@ -25,7 +23,7 @@
 | 平台            | 汇率¥/$ | 输入¥/M | 输出¥/M | Cache读¥/M | 写入5m¥/M | 写入1h¥/M | 加权均价¥/M | 支持Claude Code          |
 | --------------- | ------- | ------- | ------- | ---------- | --------- | --------- | ----------- | ------------------------ |
 | **灵眸AI**      | 2.4     | 12.00   | 60.00   | 1.20       | 15.00     | 24.00     | **45.60**   | ✅                        |
-| **神马中转API** | 2       | 20.00   | 100.00  | 1.00       | 12.50     | 20.00     | **76.00**   | ❌ 缓存不详，以官网值计算 |
+| ~~神马中转API~~（⛔ 2026-07 已停服） | 2       | 20.00   | 100.00  | 1.00       | 12.50     | 20.00     | 76.00       | ❌ 缓存不详，以官网值计算 |
 | PackyAPI        | 1       | 30.00   | 150.00  | 1.20       | 15.00     | 10.00     | 114.00      | ✅                        |
 | poloapi         | 7       | 32.90   | 163.10  | 3.29       | 40.60     | 70.00     | 124.04      | ✅                        |
 | laozhang.ai     | 7       | 35.00   | 175.00  | 3.50       | 43.75     | 70.00     | 133.00      | ❌ 缓存不详，以官网值计算 |
@@ -39,11 +37,11 @@
 
 | 模型            | 输入 $/M（起） | 输出 $/M（起） | 缓存读 $/M（起） | 官方输入价（同页对照） |
 | --------------- | -------------- | -------------- | ---------------- | ---------------------- |
-| Claude Opus 4.7 | 0.707          | 3.536          | 0.071            | $5                     |
-| Claude Opus 5   | 0.707          | 3.536          | 0.071            | $5                     |
-| Claude Sonnet 5 | 0.283          | 1.415          | 0.028            | $2                     |
+| Claude Opus 4.7 | 0.707          | 3.535          | 0.071            | $5                     |
+| Claude Opus 5   | 0.707          | 3.535          | 0.071            | $5                     |
+| Claude Sonnet 5 | 0.283          | 1.414          | 0.028            | $2                     |
 
-> 最低档渠道的输入标价约为官方的 14%。充值规则、各渠道差异和套餐价请看[价格页](https://api.lmuai.ai/pricing)，以官网实时公示为准。
+> 最低档渠道的输入标价约为官方的 14%。充值规则、各渠道差异和套餐价请看[价格页](https://api.lmuai.ai/pricing)，以官网实时公示为准。想直接接入可以跳到「[Claude API 接入配置](#claude-api-接入配置claude-code--python--curl)」。
 
 ---
 
@@ -84,7 +82,7 @@
 
 **Claude Code 实测体验**：
 
-接入方式很简单，直接设`ANTHROPIC_API_URL`即可，文档有详细步骤。用下来没遇到过`502`，稳定性在这几个平台里也属于第一梯队。
+接入方式很简单，直接设`ANTHROPIC_API_URL`即可，文档有详细步骤。4 月测试期间没遇到过`502`，稳定性在这几个平台里也属于第一梯队。
 
 重点：**支持 Cache Write 5分钟和1小时两档缓存**。对Claude Code来说，系统提示词会反复携带，每次请求如果不走缓存就全额计费；有缓存的情况下，读取费用只有写入的一小部分，长期用下来成本差距非常显著。
 
@@ -92,9 +90,13 @@
 
 **缺点**：文档也不健全——配置文档的入口藏在平台内部，从官网首页根本找不到；进去之后内容也比较简单，对第一次配置 Claude Code 的人不够友好。（2026-10 补充：现在已有公开的[接入文档](https://docs.lmuai.ai/docs)和[常见问题](https://api.lmuai.ai/faq)。）
 
+**Key 有分组限制**：一个 Key 只对应一个分组。国产模型可以共用一个 Key，海外模型只能同厂商共用，所以用 Claude 和用 GPT 要分别建 Key。另外部分 Claude 分组只放行 Claude Code 客户端，拿这种 Key 去跑脚本或接其他工具会报 403 或 502，需要另建不限客户端的分组的 Key。
+
 ---
 
-### 2. [神马中转API](https://api.whatai.cc/) ⭐⭐⭐⭐
+### 2. ~~神马中转API~~（⛔ 2026-07 已停服）
+
+> **2026 年 7 月起已停止新用户注册、接入和充值**，官网现在是[《关闭及退款说明》](https://api.whatai.cc/)（2026-10-09 查）。下面是停服前的 4 月测评数据，只作存档，还有余额的用户请按官网说明处理。
 
 聚合型平台，最大卖点是**650+模型**，Claude之外还覆盖GPT、Gemini等几乎所有主流模型。
 
@@ -261,6 +263,8 @@ PackyAPI的低价来源是**逆向接口**，不是官方API。他们通过反�
 
 **同样充¥100，低汇率平台能用的token是高汇率平台的近3倍。** 对比平台时，必须用换算后的¥/M而不是美元标价来比。
 
+拿不准一家平台是哪种记账口径，可以用 [relay-pricing-decode](https://github.com/LMU-AI/relay-pricing-decode) 判断「1 元 = 1 美元虚拟记账」还是按真实汇率换算；多家一起比价可以用 [ai-api-price-calculator](https://github.com/LMU-AI/ai-api-price-calculator)。（这两个工具也是灵眸AI 开源的。）
+
 ### 坑2：逆向接口的隐性代价
 
 部分便宜平台（PackyAPI等）的低价来自逆向接口，不是官方API。使用前需要了解这意味着什么：
@@ -278,6 +282,8 @@ PackyAPI的低价来源是**逆向接口**，不是官方API。他们通过反�
 2. 用有标准答案的数学题测试，对比官方Claude回答
 3. 关注响应风格——Claude有特定写作习惯，国产模型差异明显
 
+想判断是不是官方接口、Prompt Cache 是否真的生效，可以用 [check-claude-api](https://github.com/LMU-AI/check-claude-api) 一键检测；判断官方通道还是逆向通道的三个信号，见[这篇](https://blog.fulitimes.com/api-channel-types/)。（工具和文章同样出自灵眸AI。）
+
 ### 坑4：数据安全
 
 Claude Code在工作时会读取你本地大量文件内容，通过中转站传输时，这些内容在技术上是中转站可以看到的。个人项目影响不大，企业生产环境建议评估风险后使用可信平台或自建中转。
@@ -289,8 +295,8 @@ Claude Code在工作时会读取你本地大量文件内容，通过中转站传
 **个人开发者，主用Claude Code，预算有限**
 → **灵眸AI**（最低档渠道的输入标价约为官方的 14%，支持 5 分钟和 1 小时两档缓存；4 月测试时加权均价 ¥45.6/M）
 
-**需要Claude + GPT + Gemini多模型切换**
-→ **神马中转API**（低汇率+多模型聚合）
+**需要 Claude + GPT 等多模型切换**
+→ ~~神马中转API~~（2026 年 7 月已停服），可考虑 laozhang.ai、AIHubMix 等聚合平台
 
 **对价格极度敏感，可以接受不稳定**
 → PackyAPI（逆向接口，最便宜，但要接受随时可能中断，且缓存功能缺失）
@@ -315,37 +321,47 @@ Claude Code在工作时会读取你本地大量文件内容，通过中转站传
 2. **看内部汇率而非美元标价**，换算成¥/M才是真实成本
 3. **验证模型真实性**，上线前用测试集跑一遍
 
-如果有其他平台用过觉得不错或者踩坑的，欢迎评论区分享，我会持续更新这篇对比。
+如果有其他平台用过觉得不错或者踩坑的，欢迎[提 Issue](https://github.com/LMU-AI/claude-api-relay-review/issues) 分享，我会持续更新这篇对比。
 
 
-### 附件：最后统一说下 Claude Code 配置方法
+## Claude API 接入配置（Claude Code / Python / curl）
 
-以下以我在用的灵眸AI为例，介绍两种接入 Claude Code 的配置方式，其他的平台也一样，换一下ANTHROPIC_BASE_URL和ANTHROPIC_AUTH_TOKEN就可以。
+下面以灵眸AI 为例。其他平台的配置方法一样，把 Base URL 和 Key 换成对应平台的就行。
+
+**接入流程**：
+
+1. [注册灵眸AI](https://api.lmuai.ai/register?ref=bF5zuCmw&utm_source=both&utm_medium=github&utm_campaign=claude_api_relay_review)，在控制台创建 API Key，分组选 Claude
+2. 把客户端的 Base URL 改成 `https://api.lmuai.ai`，Key 换成刚建的
+3. 先用下面的 curl 发一条请求，确认 Key 和分组没问题，再接 Claude Code 或自己的代码
+
+> ⚠️ 前面说过，一个 Key 只对应一个分组：用 Claude 和用 GLM 等国产模型要分别建 Key。部分 Claude 分组只放行 Claude Code 客户端，这种 Key 跑 curl 或 Python 会报 403 或 502；要在脚本里调用，就建一个不限客户端的分组的 Key。
 
 ---
 
-#### 方法一：settings.json 配置（推荐）
+### Claude Code：settings.json 配置（推荐）
 
-编辑 `~/.claude/settings.json` 文件，加入以下内容：
+编辑 `~/.claude/settings.json`，加入：
 
 ```json
 {
   "env": {
     "ANTHROPIC_BASE_URL": "https://api.lmuai.ai",
-    "ANTHROPIC_AUTH_TOKEN": "sk-08b160d34*****************2c1",
+    "ANTHROPIC_AUTH_TOKEN": "你的 API Key",
     "CLAUDE_CODE_ATTRIBUTION_HEADER": "0"
   },
   "effortLevel": "medium"
 }
 ```
 
-如果配置某个国产模型
+保存后重新启动 `claude`，用 `/model` 切换要用的 Claude 模型。
+
+如果想在 Claude Code 里用国产模型（比如 GLM），换成国产模型分组的 Key，并指定模型：
 
 ```json
 {
   "env": {
     "ANTHROPIC_BASE_URL": "https://api.lmuai.ai",
-    "ANTHROPIC_AUTH_TOKEN": "sk-08b160d34*****************2c1",
+    "ANTHROPIC_AUTH_TOKEN": "你的国产模型分组 API Key",
     "CLAUDE_CODE_ATTRIBUTION_HEADER": "0"
   },
   "model": "glm-5",
@@ -353,29 +369,69 @@ Claude Code在工作时会读取你本地大量文件内容，通过中转站传
 }
 ```
 
-> `ANTHROPIC_AUTH_TOKEN` 替换为你在灵眸AI平台获取的 API Key。
->
-> ⚠️ 国产模型和 Claude 不在同一个分组：国产模型一个 Key 可以通用，海外模型只能同厂商通用，所以用 GLM 和用 Claude 要分别建 Key。
+### Claude Code：环境变量配置
 
-启动 Claude Code 后，手动激活默认模型：
-
-```
-/model glm-5
-```
-
----
-
-#### 方法二：环境变量配置
-
-在 shell 配置文件（`~/.zshrc` 或 `~/.bashrc`）中添加以下环境变量，避免每次手动激活：
+在 `~/.zshrc` 或 `~/.bashrc` 里加：
 
 ```bash
-export ANTHROPIC_MODEL=glm-5
 export ANTHROPIC_BASE_URL="https://api.lmuai.ai"
-export ANTHROPIC_AUTH_TOKEN="sk-08b160d34*****************2c1"
+export ANTHROPIC_AUTH_TOKEN="你的 API Key"
 ```
 
-保存后执行 `source ~/.zshrc`（或重开终端），之后直接运行 `claude` 即可。
+执行 `source ~/.zshrc`（或重开终端），之后直接运行 `claude`。
+
+### curl：验证 Key 能不能用
+
+```bash
+curl https://api.lmuai.ai/v1/messages \
+  -H "x-api-key: 你的 API Key" \
+  -H "anthropic-version: 2023-06-01" \
+  -H "content-type: application/json" \
+  -d '{
+    "model": "claude-sonnet-5",
+    "max_tokens": 256,
+    "messages": [{"role": "user", "content": "用一句话介绍你自己"}]
+  }'
+```
+
+返回 JSON 里有 `content` 就说明通了。返回 `INVALID_API_KEY` 是 Key 填错，返回 `not available for this API key's group` 是分组不对。
+
+### Python：Anthropic 官方 SDK
+
+```python
+# pip install anthropic
+import anthropic
+
+client = anthropic.Anthropic(
+    api_key="你的 API Key",
+    base_url="https://api.lmuai.ai",
+)
+
+message = client.messages.create(
+    model="claude-sonnet-5",
+    max_tokens=1024,
+    messages=[{"role": "user", "content": "用一句话介绍你自己"}],
+)
+print(message.content[0].text)
+```
+
+官方 SDK 只需要多传一个 `base_url`，其余代码不用改。用 Prompt Cache 的写法也和官方 API 一样。
+
+### 其他工具怎么接
+
+每个工具填的位置不一样，下面是分工具的配置文章（都在灵眸AI 的博客上）：
+
+| 工具 | 配置文章 |
+| --- | --- |
+| Cursor | [Cursor 怎么接第三方 API：Override Base URL 配置和坑](https://blog.fulitimes.com/cursor-claude-gpt-domestic-model-setup-2026-2/)（Cursor 的 Anthropic 栏不能改 Base URL，要走 OpenAI 兼容那一栏） |
+| VS Code | [VS Code 官方 Claude 扩展接第三方 API](https://blog.fulitimes.com/vscode-claude-extension-setup/) |
+| Trae | [Trae 接入 API：配置字段与五步排查](https://blog.fulitimes.com/trae-third-party-api-setup/) |
+| JetBrains（Kilo Code） | [Kilo Code 在 JetBrains 接第三方 API](https://blog.fulitimes.com/kilo-code-jetbrains-setup/) |
+| CC Switch | [CC Switch 供应商配置与 404 排查](https://blog.fulitimes.com/cc-switch-provider-import/) |
+| ZCode | [ZCode 添加自定义模型](https://blog.fulitimes.com/zcode-custom-model-setup/) |
+| Claude Code 用 GPT 模型 | [Claude Code 配置 GPT 模型](https://blog.fulitimes.com/claude-code-gpt-config/) |
+
+还没有 Key 的话：[注册灵眸AI](https://api.lmuai.ai/register?ref=bF5zuCmw&utm_source=both&utm_medium=github&utm_campaign=claude_api_relay_review)。
 
 ---
 
