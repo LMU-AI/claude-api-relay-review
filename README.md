@@ -1,10 +1,12 @@
 # Claude API 国内接入：8个中转站横评对比，踩过的坑都在这
 
+> **灵眸AI 国际站：[api.lmuai.ai](https://api.lmuai.ai/)**（Claude、GPT、Gemini 等海外模型）｜[定价](https://api.lmuai.ai/pricing)｜[接入文档](https://docs.lmuai.ai/cn/docs/guide/api-protocols)｜[注册](https://api.lmuai.ai/register?ref=bF5zuCmw&utm_source=both&utm_medium=github&utm_campaign=claude_api_relay_review)
+
 国内怎么接入 Claude API？Anthropic 官方 API 不支持中国大陆注册和付款，OpenRouter 在国内 IP 下用不了 Claude 系列，常见做法是接一个国内能直连的 API 中转站。本仓库实测对比了 8 个 Claude API 中转站的价格、内部汇率、Prompt Cache 和 Claude Code 兼容性，附逆向接口和模型掺假的识别方法，以及 Claude Code、Python、curl 的接入配置。
 
 > **利益相关声明**：本仓库由灵眸AI 维护。灵眸AI 就是下面对比的 8 家之一，文中灵眸AI 的链接带我们的邀请码（被邀请人充值后我们获得账面佣金）。我们把自己排在第一，你有理由怀疑，所以价格口径、计算方法和验证方法都写在下面，可以拿去复核任何一家，包括我们自己。
 >
-> **数据时间**：灵眸AI 的价格 2026-10-09 更新，4 月的「内部汇率 ¥2.4/$」已不再适用，现行价格见「[2026-10 灵眸AI 现行价格](#2026-10-灵眸ai-现行价格)」。神马中转API 已于 2026 年 7 月停服。其余 6 家的数据仍是 2026 年 4 月实测，**没有重测**，请以各家官网为准。
+> **数据时间**：2026-11-02 按各家公开的价格接口重新核对了一遍，对比模型换成 claude-opus-5-5，见「[2026-11 价格核对](#2026-11-价格核对)」。下面的结论表是 2026 年 4 月的实测快照，保留作对照。神马中转API 已于 2026 年 7 月停服。
 
 ---
 
@@ -31,17 +33,26 @@
 | AIHubMix        | 7.1     | 35.50   | 177.50  | 3.55       | 44.38     | 71.00     | 134.90      | ✅                        |
 | OpenRouter      | 7.27    | 36.35   | 181.75  | 3.64       | 45.44     | 72.70     | 138.13      | ✅ （需网络代理）         |
 
-### 2026-10 灵眸AI 现行价格
+### 2026-11 价格核对
 
-计价方式已从「内部汇率」改为按模型标价，站内以美元计价。下表直接抄自[模型页](https://api.lmuai.ai/models)（2026-10-09 查），「起」表示该模型 17 个渠道里的最低标价，不同渠道价格不同：
+对比模型 **claude-opus-5-5**（官方 $4 / $20），单位 ¥/百万token，加权 = 输入 30% + 输出 70%。2026-11-02 从各平台公开的价格接口核对；同一平台有多个分组时，列最便宜的分组和默认 / 官方分组。美元计价的平台按 ¥7.3/$ 估算。poloapi 的接口口径和 6 月核实的「¥7/$、官方 93 折」对不上，按 6 月口径换算。
 
-| 模型            | 输入 $/M（起） | 输出 $/M（起） | 缓存读 $/M（起） | 官方输入价（同页对照） |
-| --------------- | -------------- | -------------- | ---------------- | ---------------------- |
-| Claude Opus 4.7 | 0.707          | 3.535          | 0.071            | $5                     |
-| Claude Opus 5   | 0.707          | 3.535          | 0.071            | $5                     |
-| Claude Sonnet 5 | 0.283          | 1.414          | 0.028            | $2                     |
+| 平台 | 最便宜分组 | 输入 / 输出 | 加权 | 默认 / 官方分组 | 输入 / 输出 | 加权 | Veridrop Claude 签名通过率 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| **灵眸AI** | AWS 渠道 ×1.2 | **4.80 / 24.00** | **18.24** | Claude Max 渠道 ×2.4 | 9.60 / 48.00 | 36.48 | **95.9%**（74 次） |
+| PackyAPI | cc-sale ×0.8 | 3.20 / 16.00 | 12.16 | cc（默认）×2.5 | 10.00 / 50.00 | 38.00 | 44.1%（102 次） |
+| poloapi | 官方 93 折，汇率 ¥7/$ | 26.04 / 130.20 | 98.95 | 同左 | — | — | 暂无数据 |
+| apiyi | ClaudeCodeReverse ×0.5 | 14.00 / 70.00 | 53.20 | default ×1 | 28.00 / 140.00 | 106.40 | 80.0%（5 次） |
+| laozhang.ai | 官方同价，汇率 ¥7/$ | 28.00 / 140.00 | 106.40 | 同左 | — | — | 100%（2 次） |
+| AIHubMix | 官方同价，美元计价 | 29.20 / 146.00 | 110.96 | 同左 | — | — | 95.5%（22 次） |
+| OpenRouter | 官方原价 + 刷卡充值 5.5% | 30.81 / 154.03 | 117.06 | 同左 | — | — | 80.0%（5 次） |
+| 神马中转API | ⛔ 已停服 | — | — | — | — | — | — |
 
-> 最低档渠道的输入标价约为官方的 14%。充值规则、各渠道差异和套餐价请看[价格页](https://api.lmuai.ai/pricing)，以官网实时公示为准。想直接接入可以跳到「[Claude API 接入配置](#claude-api-接入配置claude-code--python--curl)」。
+- 单看价格最低的是 PackyAPI 的 cc-sale 分组，但这家在第三方检测站 Veridrop 上的 Claude 签名通过率只有 44.1%，站方的分组说明也写了「缓存可能会有异常」。
+- 签名通过率 90% 以上的平台（灵眸AI、AIHubMix、laozhang.ai）里，灵眸AI 最便宜：AWS 渠道加权 ¥18.24/M，约为 AIHubMix 的六分之一。
+- Claude Code 常用的默认档，灵眸 Claude Max 渠道（¥36.48/M）也比 PackyAPI 默认的 cc 分组（¥38.00/M）低。
+
+> 签名通过率：Veridrop 用 Claude 思维签名做密码学校验，签名无法伪造，括号里是实测次数，个位数的仅供参考（2026-11-02 查看，[灵眸AI 的检测页](https://veridrop.app/leaderboard/api.lmuai.ai)）。各家价格随时会变，充值前以官网为准。更完整的说明见博客版：[Claude 中转站怎么选：8 家横向对比与避坑点（2026-11）](https://blog.lmuai.com/claude-api-zhongzhuan-202609/)。想直接接入可以跳到「[Claude API 接入配置](#claude-api-接入配置claude-code--python--curl)」。
 
 ---
 
@@ -53,7 +64,7 @@
 
 1. **价格**：相同模型（Claude Opus 4.7），统一换算为¥/M后横向对比
 2. **汇率逻辑**：中转平台把人民币按内部汇率换成美元额度，系统按美元计费扣除。内部汇率决定了你充值¥100实际能用多少token
-3. **Claude Code兼容性**：能否直接设置`ANTHROPIC_API_URL`接入，缓存（Prompt Caching）是否支持
+3. **Claude Code兼容性**：能否直接设置`ANTHROPIC_BASE_URL`接入，缓存（Prompt Caching）是否支持
 4. **模型真实性**：验证输出质量，判断是否被替换或注入提示词
 5. **稳定性**：一个月内502/400系列等报错频率
 
@@ -82,7 +93,7 @@
 
 **Claude Code 实测体验**：
 
-接入方式很简单，直接设`ANTHROPIC_API_URL`即可，文档有详细步骤。4 月测试期间没遇到过`502`，稳定性在这几个平台里也属于第一梯队。
+接入方式很简单，直接设`ANTHROPIC_BASE_URL`即可，文档有详细步骤。4 月测试期间没遇到过`502`，稳定性在这几个平台里也属于第一梯队。
 
 重点：**支持 Cache Write 5分钟和1小时两档缓存**。对Claude Code来说，系统提示词会反复携带，每次请求如果不走缓存就全额计费；有缓存的情况下，读取费用只有写入的一小部分，长期用下来成本差距非常显著。
 
@@ -156,7 +167,7 @@ PackyAPI的低价来源是**逆向接口**，不是官方API。他们通过反�
 
 **网络情况**：域名无国内备案，服务器在境外。国内直连延迟视运营商和地区而定，部分地区体验正常，部分地区高峰期有明显延迟。
 
-**Claude Code 兼容性**：支持`ANTHROPIC_API_URL`接入，支持Prompt Caching。
+**Claude Code 兼容性**：支持`ANTHROPIC_BASE_URL`接入，支持Prompt Caching。
 
 **适合谁**：对平台可靠性有要求、能接受市场汇率的开发者或团队。
 
@@ -220,7 +231,7 @@ PackyAPI的低价来源是**逆向接口**，不是官方API。他们通过反�
 
 **网络情况**：域名无国内备案，服务器在境外。国内访问延迟视运营商和地区而定，整体属于境外平台正常水平，没有国内服务器的直连优势。
 
-**Claude Code 兼容性**：支持`ANTHROPIC_API_URL`接入，明确支持Prompt Caching（5min/1h两档）。
+**Claude Code 兼容性**：支持`ANTHROPIC_BASE_URL`接入，明确支持Prompt Caching（5min/1h两档）。
 
 **优点**：文档和示例代码写得很好，接入快；支持Web Search（$0.01/次）；客服响应快。
 
@@ -282,7 +293,7 @@ PackyAPI的低价来源是**逆向接口**，不是官方API。他们通过反�
 2. 用有标准答案的数学题测试，对比官方Claude回答
 3. 关注响应风格——Claude有特定写作习惯，国产模型差异明显
 
-想判断是不是官方接口、Prompt Cache 是否真的生效，可以用 [check-claude-api](https://github.com/LMU-AI/check-claude-api) 一键检测；判断官方通道还是逆向通道的三个信号，见[这篇](https://blog.fulitimes.com/api-channel-types/)。（工具和文章同样出自灵眸AI。）
+想判断是不是官方接口、Prompt Cache 是否真的生效，可以用 [check-claude-api](https://github.com/LMU-AI/check-claude-api) 一键检测；判断官方通道还是逆向通道的三个信号，见[这篇](https://blog.lmuai.com/api-channel-types/)。（工具和文章同样出自灵眸AI。）
 
 ### 坑4：数据安全
 
@@ -423,13 +434,13 @@ print(message.content[0].text)
 
 | 工具 | 配置文章 |
 | --- | --- |
-| Cursor | [Cursor 怎么接第三方 API：Override Base URL 配置和坑](https://blog.fulitimes.com/cursor-claude-gpt-domestic-model-setup-2026-2/)（Cursor 的 Anthropic 栏不能改 Base URL，要走 OpenAI 兼容那一栏） |
-| VS Code | [VS Code 官方 Claude 扩展接第三方 API](https://blog.fulitimes.com/vscode-claude-extension-setup/) |
-| Trae | [Trae 接入 API：配置字段与五步排查](https://blog.fulitimes.com/trae-third-party-api-setup/) |
-| JetBrains（Kilo Code） | [Kilo Code 在 JetBrains 接第三方 API](https://blog.fulitimes.com/kilo-code-jetbrains-setup/) |
-| CC Switch | [CC Switch 供应商配置与 404 排查](https://blog.fulitimes.com/cc-switch-provider-import/) |
-| ZCode | [ZCode 添加自定义模型](https://blog.fulitimes.com/zcode-custom-model-setup/) |
-| Claude Code 用 GPT 模型 | [Claude Code 配置 GPT 模型](https://blog.fulitimes.com/claude-code-gpt-config/) |
+| Cursor | [Cursor 怎么接第三方 API：Override Base URL 配置和坑](https://blog.lmuai.com/cursor-claude-gpt-domestic-model-setup-2026-2/)（Cursor 的 Anthropic 栏不能改 Base URL，要走 OpenAI 兼容那一栏） |
+| VS Code | [VS Code 官方 Claude 扩展接第三方 API](https://blog.lmuai.com/vscode-claude-extension-setup/) |
+| Trae | [Trae 接入 API：配置字段与五步排查](https://blog.lmuai.com/trae-third-party-api-setup/) |
+| JetBrains（Kilo Code） | [Kilo Code 在 JetBrains 接第三方 API](https://blog.lmuai.com/kilo-code-jetbrains-setup/) |
+| CC Switch | [CC Switch 供应商配置与 404 排查](https://blog.lmuai.com/cc-switch-provider-import/) |
+| ZCode | [ZCode 添加自定义模型](https://blog.lmuai.com/zcode-custom-model-setup/) |
+| Claude Code 用 GPT 模型 | [Claude Code 配置 GPT 模型](https://blog.lmuai.com/claude-code-gpt-config/) |
 
 还没有 Key 的话：[注册灵眸AI](https://api.lmuai.ai/register?ref=bF5zuCmw&utm_source=both&utm_medium=github&utm_campaign=claude_api_relay_review)。
 
