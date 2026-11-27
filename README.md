@@ -46,6 +46,7 @@
 | laozhang.ai | 官方同价，汇率 ¥7/$ | 28.00 / 140.00 | 106.40 | 同左 | — | — | 100%（2 次） |
 | AIHubMix | 官方同价，美元计价 | 29.20 / 146.00 | 110.96 | 同左 | — | — | 95.5%（22 次） |
 | OpenRouter | 官方原价 + 刷卡充值 5.5% | 30.81 / 154.03 | 117.06 | 同左 | — | — | 80.0%（5 次） |
+| 微澜 Latentide | 官方价 15%，美元计价 | 4.38 / 21.90 | 16.64 | 同左 | — | — | 100%（9 次） |
 | 神马中转API | ⛔ 已停服 | — | — | — | — | — | — |
 
 - 单看价格最低的是 PackyAPI 的 cc-sale 分组，但这家在第三方检测站 Veridrop 上的 Claude 签名通过率只有 44.1%，站方的分组说明也写了「缓存可能会有异常」。
@@ -53,6 +54,8 @@
 - Claude Code 常用的默认档，灵眸 Claude Max 渠道（¥36.48/M）也比 PackyAPI 默认的 cc 分组（¥38.00/M）低。
 
 > 签名通过率：Veridrop 用 Claude 思维签名做密码学校验，签名无法伪造，括号里是实测次数，个位数的仅供参考（2026-11-02 查看，[灵眸AI 的检测页](https://veridrop.app/leaderboard/api.lmuai.ai)）。各家价格随时会变，充值前以官网为准。更完整的说明见博客版：[Claude 中转站怎么选：8 家横向对比与避坑点（2026-11）](https://blog.lmuai.com/claude-api-zhongzhuan-202609/)。想直接接入可以跳到「[Claude API 接入配置](#claude-api-接入配置claude-code--python--curl)」。
+
+> 微澜 Latentide：2026-11-27 核对。来源是公开价格接口 https://latentide.com/api/public/catalog （claude-opus-5-5 为 $0.60 / $3.00，缓存读 $0.03）、模型页 https://latentide.com/models/claude-opus-5-5 、自检说明 https://latentide.com/benchmarks/claude 和 Veridrop 检测页 https://veridrop.app/leaderboard/latentide.com 。站点按美元计价，表中按本表统一的 ¥7.3/$ 估算。签名通过率只有 9 次，样本少，仅供参考。
 
 ---
 
